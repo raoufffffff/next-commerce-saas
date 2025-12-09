@@ -1,33 +1,43 @@
 import { notFound } from "next/navigation";
-import { stores } from "@/data/stores";
 
-// تعريف النوع ليكون Promise (تغيير مهم في Next.js 15)
+// دالة جلب البيانات مع تفعيل الـ ISR Tags
+async function getStoreFromApi(subdomain) {
+    try {
+        // 👇 السر هنا: تفعيل التاج باسم المتجر
+        const res = await fetch('https://true-fit-dz-api.vercel.app/user', {
+            next: {
+                tags: [`store-${subdomain}`], // مثال: store-lazemdeals
+                // revalidate: 3600 // (اختياري) تحديث تلقائي كل ساعة كاحتياط
+            }
+        });
 
-// الدالة يجب أن تكون async
+        if (!res.ok) throw new Error('Failed to fetch');
+
+        const data = await res.json();
+
+        // ملاحظة: الأفضل مستقبلاً جعل الـ API يجلب متجراً واحداً فقط بدلاً من البحث في المصفوفة
+        // GET /api/store?subdomain=lazemdeals
+        const store = data.result.find((user) => user.repoName === subdomain);
+
+        return store || null;
+    } catch (error) {
+        console.error("API Error:", error);
+        return null;
+    }
+}
+
 export default async function ShopPage({ params }) {
-
-    // ⚠️ الخطوة السحرية: يجب انتظار البارامترات أولاً
     const { site } = await params;
 
-    console.log("📂 Site param resolved:", site);
-
-    // الآن يمكنك استخدامه
-    // @ts-ignore
-    const store = stores[site];
+    const store = await getStoreFromApi(site);
 
     if (!store) return notFound();
 
-    const deliveryInfo = store.delivery.type === 'fixed'
-        ? `سعر التوصيل: ${store.delivery.price} دج`
-        : `يبدأ التوصيل من ${store.delivery.base} دج`;
-
+    // ... باقي الكود كما هو
     return (
-        <div style={{ padding: 50, backgroundColor: store.theme === 'red' ? '#ffebeb' : '#e6f7ff' }}>
-            <h1 className="text-4xl font-bold">{store.name}</h1>
-            <div className="mt-10 p-5 border bg-white rounded shadow">
-                <h2 className="text-xl">تفاصيل التوصيل:</h2>
-                <p className="text-lg font-bold text-green-600">{deliveryInfo}</p>
-            </div>
+        <div style={{ padding: 50 }}>
+            <h1 className="text-4xl font-bold">{store.username || store.name}</h1>
+            {/* ... */}
         </div>
     );
 }

@@ -23,7 +23,6 @@ export default function middleware(req) {
         currentHost = currentHost.split(":")[0];
     }
 
-    console.log("👉 Extracted Subdomain:", currentHost);
 
     // الشرط الذكي: يقارن بالمتغير rootDomain بدلاً من الكتابة اليدوية
     // إذا كان الرابط هو الدومين الأصلي، أو www، أو اللوكال هوست
@@ -34,7 +33,6 @@ export default function middleware(req) {
         hostname === rootDomain ||
         currentHost === "localhost"
     ) {
-        console.log("✅ Serving Landing Page");
         return NextResponse.next();
     }
 
