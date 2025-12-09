@@ -6,6 +6,7 @@ async function getStoreFromApi(subdomain) {
         // 👇 السر هنا: تفعيل التاج باسم المتجر
         const res = await fetch('https://true-fit-dz-api.vercel.app/user', {
             next: {
+                revalidate: false,
                 tags: [`store-${subdomain}`], // مثال: store-lazemdeals
                 // revalidate: 3600 // (اختياري) تحديث تلقائي كل ساعة كاحتياط
             }
