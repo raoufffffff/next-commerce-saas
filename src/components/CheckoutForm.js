@@ -3,9 +3,12 @@ import * as fbq from '@/lib/fpixel';
 import * as ttq from '@/lib/ttpixel';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { User, Phone, MapPin, ChevronDown, ShoppingCart, ArrowDown, Gift, Tag, CheckCircle2, Building, Minus, Plus, Loader2 } from 'lucide-react';
+
 // import ReactPixel from 'react-facebook-pixel'; // Ensure you have this installed or remove if using a different Next.js pixel wrapper
 import axios from 'axios';
 import { useRouter } from 'next/navigation'; // Next.js router
+import states from '@/constans/states';
+import etat from '@/constans/etat';
 
 // --- Sub-Component: Variant Selector (Colors & Sizes) ---
 const VariantSelector = ({ options, type, selected, onSelect, mainColor }) => {
@@ -88,9 +91,9 @@ const OfferSelector = ({ offers, selectedOffer, onSelect, mainColor }) => {
 };
 
 // --- Main Component: CheckoutForm ---
-export default function CheckoutForm({ product, livPrice, citiesData, mainColor = "#4F46ff", fbPixelId }) {
+export default function CheckoutForm({ product, livPriceapi, mainColor = "#4F46ff" }) {
     const router = useRouter();
-
+    const livPrice = livPriceapi || states
     // 1. Extract Product Details
     const variants = product.Variants
     const colorOptions = variants.find((v) => v.type === "color")?.options || [];
@@ -129,13 +132,6 @@ export default function CheckoutForm({ product, livPrice, citiesData, mainColor 
     const formRef = useRef(null);
     const nameInputRef = useRef(null);
 
-    // 3. Pixel Initialization
-    // useEffect(() => {
-    //     if (fbPixelId) {
-    //         ReactPixel.init(fbPixelId, {}, { autoConfig: true, debug: false });
-    //         ReactPixel.track('ViewContent', { content_name: product?.name, content_ids: [product?._id] });
-    //     }
-    // }, [fbPixelId, product]);
 
     // 4. Scroll Logic for Sticky Button
     useEffect(() => {
@@ -185,9 +181,8 @@ export default function CheckoutForm({ product, livPrice, citiesData, mainColor 
         const stateCode = e.target.value;
         const stateObj = livPrice.LivPrice.find(s => String(s.code) === String(stateCode));
 
-        // Filter Cities based on state code (Assuming citiesData has state_code)
-        // If citiesData comes from a file like in React: import citie from "../constans/etat";
-        const cities = citiesData ? citiesData.filter(c => String(c.state_code) === String(stateCode)) : [];
+
+        const cities = etat ? etat.filter(c => String(c.state_code) === String(stateCode)) : [];
         setAvailableCities(cities);
 
         setFormData(prev => ({

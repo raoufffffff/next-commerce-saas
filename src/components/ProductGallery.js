@@ -63,11 +63,11 @@ export default function ProductGallery({
                             className="w-full h-full object-cover cursor-zoom-in transition-transform duration-500 hover:scale-105"
                         />
                         {/* Discount Badge Example - Optional */}
-                        {i === 0 && (
+                        {/* {i === 0 && (
                             <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse z-10">
                                 تخفيض -30%
                             </div>
-                        )}
+                        )} */}
                     </div>
                 ))}
             </div>

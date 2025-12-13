@@ -100,7 +100,7 @@ export default async function ProductPage({ params }) {
                     {/* تأكدنا من وجود store قبل الوصول إلى خصائصه لتجنب الأخطاء */}
                     <CheckoutForm
                         mainColor={store?.website?.main_color || '#000'}
-                        livPrice={livPrice}
+                        livPriceapi={livPrice}
                         product={product}
                     />
                 </div>

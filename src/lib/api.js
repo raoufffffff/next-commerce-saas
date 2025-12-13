@@ -12,7 +12,7 @@ export async function getStore(subdomain) {
         if (!res.ok) throw new Error('Failed to fetch');
 
         const data = await res.json();
-
+        console.log(`🔥🔥 [DATABASE HIT] لجلب بيانات المتجر: ${subdomain} في الوقت: ${new Date().toISOString()} 🔥🔥`);
         // ملاحظة: الأفضل مستقبلاً جعل الـ API يجلب متجراً واحداً فقط بدلاً من البحث في المصفوفة
         const store = data.result;
         const livPrice = data.livPrice
@@ -34,7 +34,7 @@ export async function getProducts(subdomain, id) {
 
     if (!res.ok) return [];
     res = res.json();
-
+    console.log(`🔥🔥 [DATABASE HIT] لجلب بيانات المتجر: ${subdomain} في الوقت: ${new Date().toISOString()} 🔥🔥`);
     return res
 }
 
@@ -52,7 +52,7 @@ export async function getProduct(id, subdomain) {
         if (!res.ok) throw new Error('Failed to fetch');
 
         const data = await res.json();
-
+        console.log(`🔥🔥 [DATABASE HIT] لجلب بيانات المتجر: ${subdomain} في الوقت: ${new Date().toISOString()} 🔥🔥`);
         // ملاحظة: الأفضل مستقبلاً جعل الـ API يجلب متجراً واحداً فقط بدلاً من البحث في المصفوفة
         const product = data.result;
         return product;
