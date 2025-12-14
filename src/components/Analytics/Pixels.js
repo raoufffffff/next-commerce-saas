@@ -1,27 +1,38 @@
-'use client'; // 👈 ضروري لأنه يتعامل مع window
+'use client';
 
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import * as fbq from '@/lib/fpixel';
 import * as ttq from '@/lib/ttpixel';
 
 export default function Pixels({ fbId, tiktokId }) {
     const pathname = usePathname();
+    const [loaded, setLoaded] = useState(false);
 
-    // تتبع تغيير الصفحة (لأن Next.js تطبيق صفحة واحدة SPA)
+    // تتبع تغيير الصفحة
     useEffect(() => {
-        if (fbId?.id) fbq.pageview(fbId.id);
-        if (tiktokId?.id) ttq.pageview(tiktokId.id);
-    }, [pathname, fbId?.id, tiktokId?.id]);
+        // نتحقق أولاً أن السكريبت قد تم تحميله لتجنب الأخطاء
+        if (!loaded) return;
+
+        // فيسبوك
+        if (fbId?.id) {
+            fbq.pageview(); // لاحظ: لا تمرر الـ ID هنا عادة، الدالة pageview تأخذها من الـ init
+        }
+
+        // تيك توك
+        if (tiktokId?.id) {
+            ttq.pageview();
+        }
+    }, [pathname, fbId, tiktokId, loaded]);
 
     return (
         <>
-            {/* --- 1. Facebook Pixel Script --- */}
+            {/* --- 1. Facebook Pixel --- */}
             {fbId?.id && (
                 <Script
                     id="fb-pixel"
-                    strategy="afterInteractive" // لا يعطل تحميل الصفحة
+                    strategy="lazyOnload" // 👈 تحسين الأداء: تحميل كسول
                     dangerouslySetInnerHTML={{
                         __html: `
               !function(f,b,e,v,n,t,s)
@@ -32,18 +43,21 @@ export default function Pixels({ fbId, tiktokId }) {
               t.src=v;s=b.getElementsByTagName(e)[0];
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
+              
               fbq('init', '${fbId.id}');
-              fbq('track', 'PageView');
+              // ❌ حذفنا سطر track PageView من هنا
+              // ✅ الـ useEffect سيتكفل بالأمر لضمان عدم التكرار
             `,
                     }}
+                    onLoad={() => setLoaded(true)} // نخبر الـ State أن السكريبت جاهز
                 />
             )}
 
-            {/* --- 2. TikTok Pixel Script --- */}
+            {/* --- 2. TikTok Pixel --- */}
             {tiktokId?.id && (
                 <Script
                     id="tiktok-pixel"
-                    strategy="afterInteractive"
+                    strategy="lazyOnload" // 👈 تحسين الأداء
                     dangerouslySetInnerHTML={{
                         __html: `
               !function (w, d, t) {
@@ -58,10 +72,11 @@ export default function Pixels({ fbId, tiktokId }) {
                 var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
                 
                 ttq.load('${tiktokId.id}');
-                ttq.page();
+                // ❌ حذفنا سطر ttq.page() من هنا
               }(window, document, 'ttq');
             `,
                     }}
+                    onLoad={() => setLoaded(true)}
                 />
             )}
         </>

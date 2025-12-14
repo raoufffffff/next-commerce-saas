@@ -91,7 +91,7 @@ const OfferSelector = ({ offers, selectedOffer, onSelect, mainColor }) => {
 };
 
 // --- Main Component: CheckoutForm ---
-export default function CheckoutForm({ product, livPriceapi, mainColor = "#4F46ff" }) {
+export default function CheckoutForm({ product, livPriceapi, mainColor = "#4F46ff", tiktokp, facebookp }) {
     const router = useRouter();
     const livPrice = livPriceapi || states
     // 1. Extract Product Details
@@ -252,25 +252,30 @@ export default function CheckoutForm({ product, livPriceapi, mainColor = "#4F46f
 
             await axios.post("https://true-fit-dz-api.vercel.app/order", orderPayload);
 
+            if (facebookp) {
+                fbq.event('Purchase', {
+                    content_name: product.name,
+                    content_ids: [product._id],
+                    value: product.price,
+                    currency: 'DZD',
+                });
+            }
 
-            fbq.event('Purchase', {
-                content_name: product.name,
-                content_ids: [product._id],
-                value: product.price,
-                currency: 'DZD',
-            });
 
             // 2. تتبع تيك توك
-            ttq.event('Purchase', {
-                contents: [{
-                    content_id: product._id,
-                    content_name: product.name,
-                    price: product.price,
-                    quantity: 1
-                }],
-                value: product.price,
-                currency: 'DZD'
-            });
+            if (tiktokp) {
+                ttq.event('Purchase', {
+                    contents: [{
+                        content_id: product._id,
+                        content_name: product.name,
+                        price: product.price,
+                        quantity: 1
+                    }],
+                    value: product.price,
+                    currency: 'DZD'
+                });
+            }
+
             router.push('/thanks'); // Next.js navigation
         } catch (err) {
             console.error(err);
