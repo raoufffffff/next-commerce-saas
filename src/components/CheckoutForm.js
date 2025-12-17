@@ -182,7 +182,7 @@ export default function CheckoutForm({ product, livPriceapi, mainColor = "#4F46f
         const stateObj = livPrice.LivPrice.find(s => String(s.code) === String(stateCode));
 
 
-        const cities = etat ? etat.filter(c => String(c.state_code) === String(stateCode)) : [];
+        const cities = etat ? etat.filter(c => String(c.wilaya_code) === String(stateCode)) : [];
         setAvailableCities(cities);
 
         setFormData(prev => ({
@@ -378,7 +378,7 @@ export default function CheckoutForm({ product, livPriceapi, mainColor = "#4F46f
                                     >
                                         <option value="">اختر البلدية...</option>
                                         {availableCities.map((c) => (
-                                            <option key={c.id || c.name} value={c.name}>{c.ar_name || c.name}</option>
+                                            <option key={c.id || c.name} value={c.commune_name}>{c.commune_name || c.daira_name}</option>
                                         ))}
                                     </select>
                                 ) : (
