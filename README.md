@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next Commerce SaaS (Multi-Tenant Platform)
 
-## Getting Started
+An open-source, multi-tenant e-commerce platform aimed at providing a Shopify-like experience. This project uses **Next.js Middleware** to handle dynamic subdomains, allowing every user to have their own distinct storefront URL (e.g., `brand.myplatform.com`).
 
-First, run the development server:
+![Status](https://img.shields.io/badge/Status-Active_Development-green) ![Migration](https://img.shields.io/badge/Migration-JS_to_TS-blue)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* **Multi-Tenancy:** Single codebase serving thousands of distinct stores via subdomains.
+* **Edge Middleware:** rewriting paths based on hostnames for high-performance routing.
+* **Merchant Dashboard:** Centralized admin panel for product management, analytics, and orders.
+* **Custom Storefronts:** Dynamic UI generation based on merchant settings.
+* **Authentication:** Secure login for both platform admins and store customers.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* **Framework:** Next.js (App Router)
+* **Styling:** Tailwind CSS
+* **State Management:** React Context / Zustand
+* **Language:** JavaScript (Currently migrating to TypeScript 100%)
 
-## Learn More
+## 🏗️ Architecture: How Subdomains Work
 
-To learn more about Next.js, take a look at the following resources:
+This project relies heavily on `middleware.js` to route requests.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  **Request Inbound:** User visits `store-one.platform.com`.
+2.  **Middleware Intercept:** The middleware detects the hostname.
+3.  **Rewrite:** The URL is rewritten internally to `/site/store-one`.
+4.  **Render:** Next.js renders the dynamic page specific to that tenant's data.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚧 Roadmap & Current Focus
 
-## Deploy on Vercel
+I am currently refactoring the codebase to ensure scalability and type safety.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] **Migrate entire codebase from JavaScript to TypeScript.**
+- [ ] Implement advanced analytics for merchants.
+- [ ] Optimize image loading with Next/Image for dynamic sources.
+- [ ] Add support for custom domains (CNAME flattening).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 Getting Started
+
+*(Note: Ensure you have your environment variables set up for the database)*
+
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/your-username/next-commerce-saas.git](https://github.com/your-username/next-commerce-saas.git)
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Run the development server**
+    ```bash
+    npm run dev
+    ```
+
+4.  **Test Subdomains:**
+    Update your `/etc/hosts` file to test subdomains locally (e.g., `127.0.0.1 test.localhost`).
+
+## 🤝 Contributing
+
+We are currently in a heavy development phase focusing on the TypeScript migration. PRs improving typing coverage are welcome!
+
+---
+
+*Built with ❤️ by abderraouf hamoudi*
