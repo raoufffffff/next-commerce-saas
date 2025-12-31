@@ -1,186 +1,0 @@
-import { notFound } from 'next/navigation';
-
-// Components
-import ProductGallery from '@/components/ProductGallery';
-import CheckoutForm from '@/components/CheckoutForm';
-import Tags from '@/components/Tags';
-import { CheckCircle } from 'lucide-react';
-
-// API Helpers
-import { getProduct, getStore } from '@/lib/api';
-
-// ---------------------------------------------------------
-// 🔒 1. إعدادات الكاش الصارمة (The Iron-Clad Cache Config)
-// ---------------------------------------------------------
-
-// 🛑 هذا هو "القفل". بوضع false، أنت تقول لـ Next.js:
-// "لا تجدد هذه الصفحة أبداً بناءً على الوقت. احتفظ بنسخة الـ HTML إلى الأبد."
-// لن يتم استدعاء الـ API مجدداً إلا إذا ناديت revalidateTag يدوياً.
-export const revalidate = false;
-
-// ✅ يسمح بإنشاء صفحات لمنتجات جديدة لم تكن موجودة وقت البناء
-export const dynamicParams = true;
-
-// ⚡️ استراتيجية البناء عند الطلب:
-// المصفوفة الفارغة تعني: "لا تضيع وقتك في بناء الصفحات الآن.
-// ابنِ الصفحة فقط عندما يزورها أول عميل، ثم احفظها في الكاش".
-export async function generateStaticParams() {
-    return [];
-}
-
-// ---------------------------------------------------------
-// 🔍 2. SEO & Metadata (محركات البحث)
-// ---------------------------------------------------------
-export async function generateMetadata({ params }) {
-    const { id, site } = await params;
-
-    // ملاحظة: Next.js ذكي جداً، هذا الاستدعاء لن يضرب الـ API مرتين
-    // سيستخدم نفس الـ Request Memoization المستخدم في الصفحة بالأسفل
-    const product = await getProduct(id, site);
-
-    if (!product) return { title: 'المنتج غير متوفر' };
-
-    return {
-        title: `${product.name} | أفضل الأسعار`,
-        description: product.ShortDescription || `اشتري ${product.name} الآن بأفضل سعر في الجزائر`,
-        openGraph: {
-            title: product.name,
-            description: product.ShortDescription,
-            images: product.images && product.images[0] ? [
-                {
-                    url: product.images[0],
-                    width: 800,
-                    height: 600,
-                    alt: product.name,
-                }
-            ] : [],
-        },
-    };
-}
-
-// ---------------------------------------------------------
-// 🎨 3. مكون الصفحة الرئيسي
-// ---------------------------------------------------------
-export default async function ProductPage({ params }) {
-    const { id, site } = await params;
-
-    // 🔥 Parallel Fetching: جلب المتجر والمنتج في نفس اللحظة لتقليل الانتظار
-    const [storeData, product] = await Promise.all([
-        getStore(site),
-        getProduct(id, site)
-    ]);
-
-    // إذا لم تنجح البيانات، نحول المستخدم لصفحة 404 رسمية (SEO Friendly)
-    if (!product || !storeData) {
-        notFound();
-    }
-
-    // استخراج البيانات حسب هيكلة الـ API الخاص بك
-    // افترضنا هنا أن API المتجر يعيد { result: storeObject, livPrice: ... }
-    const { livPrice, store } = storeData;
-    // ملاحظة: إذا كان الـ API يعيد { store: ..., livPrice: ... } عدلها هنا
-
-    // 🤖 JSON-LD Schema: لغة التفاهم مع جوجل (لإظهار السعر والتوفر في البحث)
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: product.name,
-        description: product.ShortDescription,
-        image: product.images,
-        offers: {
-            '@type': 'Offer',
-            priceCurrency: 'DZD',
-            price: product.price,
-            availability: 'https://schema.org/InStock',
-            url: `https://${site}/products/${id}`, // رابط المنتج
-        },
-    };
-
-    return (
-        <div dir="rtl" className="min-h-screen bg-gray-50 font-sans text-gray-800 pb-20 mt-20">
-
-            {/* حقن بيانات JSON-LD في رأس الصفحة */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-
-            <main className="container mx-auto relative grid grid-cols-1 md:grid-cols-12 px-4 py-8 max-w-7xl gap-6">
-
-                {/* 📸 RIGHT COLUMN (Desktop): Product Details & Gallery (Cols 7) */}
-                <div className="md:col-span-7 space-y-6">
-
-                    {/* Gallery Component (Client Island) */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
-                        <ProductGallery
-                            LadingPages={product.LadingPages}
-                            images={product.images}
-                            title={product.name}
-                            mainColor={store?.website?.main_color}
-                        />
-                    </div>
-
-                    {/* Product Info Block */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">
-                            {product.name}
-                        </h1>
-
-                        <div className="flex items-center flex-wrap gap-4 mb-6">
-                            <span className="text-4xl font-extrabold text-indigo-600">
-                                {Number(product.price).toLocaleString()} د.ج
-                            </span>
-                            {product.Oldprice && (
-                                <span className="text-xl text-gray-400 line-through decoration-red-400 decoration-2">
-                                    {Number(product.Oldprice).toLocaleString()} د.ج
-                                </span>
-                            )}
-                            {/* Badge Example */}
-                            <span className="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                                <CheckCircle size={14} /> متوفر حالياً
-                            </span>
-                        </div>
-
-                        {/* Tags */}
-                        {product.tags && product.tags.length > 0 && (
-                            <div className="mb-6 border-t border-gray-100 pt-4">
-                                <Tags tags={product.tags} />
-                            </div>
-                        )}
-
-                        {/* Description */}
-                        <div className="prose prose-indigo max-w-none text-right text-gray-600 leading-relaxed">
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">الوصف:</h3>
-                            <div dangerouslySetInnerHTML={{ __html: product.ShortDescription }} />
-                        </div>
-                    </div>
-
-                    {/* Extra Note Block (if exists) */}
-                    {product.note && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-sm">
-                            <strong>ملاحظة هامة: </strong> {product.note}
-                        </div>
-                    )}
-                </div>
-
-                {/* 🛒 LEFT COLUMN (Desktop): Sticky Checkout Form (Cols 5) */}
-                <div className="md:col-span-5 h-fit md:sticky md:top-24">
-                    <CheckoutForm
-                        tiktokp={store?.website?.TiktokPixel?.id || null}
-                        facebookp={store?.website?.facebookPixel?.id || null}
-
-                        mainColor={store?.website?.main_color || '#4F46E5'}
-                        livPriceapi={livPrice}
-                        product={product}
-                    />
-
-                    {/* Trust Badges (Optional Visuals) */}
-                    <div className="mt-4 flex justify-center gap-4 opacity-60 grayscale">
-                        {/* أضف صور طرق الدفع أو الضمان هنا لزيادة الثقة */}
-                    </div>
-                </div>
-
-            </main>
-        </div>
-    );
-}
