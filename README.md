@@ -1,41 +1,42 @@
-# Next Commerce SaaS (Multi-Tenant Platform)
+# 🛒 Next Commerce SaaS
 
-An open-source, multi-tenant e-commerce platform aimed at providing a Shopify-like experience. This project uses **Next.js Middleware** to handle dynamic subdomains, allowing every user to have their own distinct storefront URL (e.g., `brand.myplatform.com`).
+**A High-Performance, Multi-Tenant E-Commerce Platform built with Next.js 15 & TypeScript.**
 
-![Status](https://img.shields.io/badge/Status-Active_Development-green) ![Migration](https://img.shields.io/badge/Migration-JS_to_TS-blue)
+![Project Status](https://img.shields.io/badge/Status-Active_Development-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
 
-## 🚀 Key Features
+## 📖 Overview
 
-* **Multi-Tenancy:** Single codebase serving thousands of distinct stores via subdomains.
-* **Edge Middleware:** rewriting paths based on hostnames for high-performance routing.
-* **Merchant Dashboard:** Centralized admin panel for product management, analytics, and orders.
-* **Custom Storefronts:** Dynamic UI generation based on merchant settings.
-* **Authentication:** Secure login for both platform admins and store customers.
+Next Commerce is a white-label SaaS platform that allows merchants to create their own online stores instantly. It utilizes **Middleware-based Subdomain Routing** to serve distinct stores from a single codebase (e.g., `store1.example.com`, `store2.example.com`).
+
+Recently migrated to **Strict TypeScript** for maximum reliability and type safety.
+
+## ✨ Key Features
+
+* **🌐 Multi-Tenancy:** Dynamic subdomain routing using Next.js Middleware.
+* **⚡ Extreme Performance:** Uses `force-static` and aggressive caching strategies for near-instant page loads.
+* **🛒 COD Optimized Checkout:** Custom checkout forms tailored for Cash On Delivery markets (Algeria/North Africa).
+* **📊 Analytics Integration:** Native support for **Facebook Pixel**, **TikTok Pixel**, and **Microsoft Clarity**.
+* **📱 Mobile First:** Sticky "Buy Now" buttons and touch-optimized galleries.
+* **🛡️ Type Safety:** Fully typed codebase with shared interfaces for Stores, Products, and APIs.
+* **🎨 Dynamic Theming:** Stores inject their own colors, logos, and branding automatically.
 
 ## 🛠️ Tech Stack
 
-* **Framework:** Next.js (App Router)
+* **Framework:** Next.js 16 (App Router)
+* **Language:** TypeScript
 * **Styling:** Tailwind CSS
-* **State Management:** React Context / Zustand
-* **Language:** JavaScript (Currently migrating to TypeScript 100%)
+* **Icons:** Lucide React
+* **Image Handling:** React Photo View & Next/Image optimization
+* **Deployment:** Vercel (Recommended)
 
-## 🏗️ Architecture: How Subdomains Work
+## 🚀 Getting Started
 
-This project relies heavily on `middleware.js` to route requests.
+### Prerequisites
 
-1.  **Request Inbound:** User visits `store-one.platform.com`.
-2.  **Middleware Intercept:** The middleware detects the hostname.
-3.  **Rewrite:** The URL is rewritten internally to `/site/store-one`.
-4.  **Render:** Next.js renders the dynamic page specific to that tenant's data.
-
-## 🚧 Roadmap & Current Focus
-
-I am currently refactoring the codebase to ensure scalability and type safety.
-
-- [ ] **Migrate entire codebase from JavaScript to TypeScript.**
-- [ ] Implement advanced analytics for merchants.
-- [ ] Optimize image loading with Next/Image for dynamic sources.
-- [ ] Add support for custom domains (CNAME flattening).
+* Node.js 18+
+* npm or pnpm
 
 ## 📦 Getting Started
 
