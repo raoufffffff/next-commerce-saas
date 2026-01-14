@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import Pixels from "@/components/Analytics/Pixels";
 import Header from "@/components/Header";
 import { getStore } from "@/lib/api";
-import { Store } from "@/types"; // Import Store type
 
 export const revalidate = false;
 
@@ -60,7 +59,7 @@ export default async function StoreLayout({
         <div>
             <Pixels
                 fbId={store.website.facebookPixel}
-                tiktokId={store.website.TiktokPixel}
+            // tiktokId={store.website.TiktokPixel}
             />
 
             <Header store={store.website} />
