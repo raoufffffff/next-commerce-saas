@@ -153,6 +153,7 @@ export default async function ProductPage({ params }: { params: Promise<PagePara
                 {/* 🛒 LEFT COLUMN (Desktop): Sticky Checkout Form (Cols 5) */}
                 <div className="md:col-span-5 h-fit md:sticky md:top-24">
                     <CheckoutForm
+                        EnableBerue={store?.website?.EnableBerue || false}
                         tiktokp={store?.website?.TiktokPixel?.id || null}
                         facebookp={store?.website?.facebookPixel?.id || null}
 

@@ -209,6 +209,7 @@ export interface CheckoutFormData {
 }
 
 export interface CheckoutFormProps {
+    EnableBerue: boolean;
     product: Product;
     livPriceapi?: { LivPrice: StateData[] } | null;
     mainColor?: string;

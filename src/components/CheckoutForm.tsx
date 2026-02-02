@@ -30,6 +30,7 @@ import { CheckoutFormData, CheckoutFormProps, CityData, Offer, Product, StateDat
 
 
 export default function CheckoutForm({
+    EnableBerue,
     product,
     livPriceapi,
     mainColor = '#4F46ff',
@@ -37,6 +38,8 @@ export default function CheckoutForm({
     facebookp,
 }: CheckoutFormProps) {
     const router = useRouter();
+    console.log(facebookp);
+
     // Fallback to local states if API data isn't provided
     const livPrice = livPriceapi || { LivPrice: states as unknown as StateData[] };
     // 1. Extract Product Details
@@ -443,7 +446,7 @@ export default function CheckoutForm({
                             <label className="block text-sm font-bold text-gray-700 mb-1">
                                 نوع التوصيل
                             </label>
-                            <select
+                            {EnableBerue && <select
                                 name="deliveryType"
                                 value={formData.deliveryType}
                                 onChange={handleInputChange}
@@ -451,7 +454,7 @@ export default function CheckoutForm({
                             >
                                 <option value="home">توصيل للمنزل</option>
                                 <option value="office">توصيل للمكتب (Stop desk)</option>
-                            </select>
+                            </select>}
                         </div>
                         <div className="col-span-2 md:col-span-1">
                             <label className="block text-sm font-bold text-gray-700 mb-1">
