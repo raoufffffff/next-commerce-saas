@@ -1,20 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import React, { useState } from "react";
-import { ShoppingCart, Search, PackageOpen } from "lucide-react";
-import { Category, Product } from "@/types";
+import { PackageOpen } from "lucide-react";
+import { Category, product, Store } from "@/types";
+
+// Import your card variants
+import CategoryCardTypeA from "./cards/CategoryCard/CategoryCardTypeA";
+import CategoryCardTypeB from "./cards/CategoryCard/CategoryCardTypeB";
+import CategoryCardTypeC from "./cards/CategoryCard/CategoryCardTypeC";
+import ProductCardTypeA from "./cards/ProductCard/ProductCardTypeA";
+import ProductCardTypeB from "./cards/ProductCard/ProductCardTypeB";
+import ProductCardTypeC from "./cards/ProductCard/ProductCardTypeC";
 
 // --- Types & Interfaces ---
-
-
-
-
-
-
 interface ProductData {
-    result: Product[];
+    result: product[];
 }
 
 interface ProductAndCategoriesProps {
@@ -22,17 +23,23 @@ interface ProductAndCategoriesProps {
     Categories: Category[];
     mainColor: string;
     logo: string;
+    store: Store;
 }
 
 const ProductAndCategories = ({
+    store,
     products,
     Categories,
     mainColor,
     logo,
 }: ProductAndCategoriesProps) => {
     const [cat, setCat] = useState<string>("all");
+    
+    // Get styles from store (Default to 'A' if missing)
+    const categoryStyle = store.CategoryCardType || "A";
+    const productStyle = store.ProductCardType || "A";
 
-    // Filter products based on the selected category and visibility status
+    // Filter products
     const filteredProducts =
         cat === "all"
             ? products.result.filter((e) => e.show)
@@ -40,8 +47,53 @@ const ProductAndCategories = ({
                 .filter((e) => e.show)
                 .filter((product) => product.type === cat);
 
+    // --- Helper to Render Category Cards ---
+    const renderCategoryCard = (item: { name: string; image: string; displayName?: string }, index: number) => {
+        const isActive = cat === item.name;
+        // Use displayName if available (for "All"), otherwise use name
+        const label = item.displayName || item.name; 
+
+        // FIX: Removed 'key' from this object
+        const props = {
+            image: item.image,
+            name: label,
+            isActive: isActive,
+            onClick: () => setCat(item.name),
+            mainColor: mainColor
+        };
+
+        // FIX: Applied 'key' directly to the JSX element
+        switch (categoryStyle) {
+            case "B": return <CategoryCardTypeB key={index} {...props} />;
+            case "C": return <CategoryCardTypeC key={index} {...props} />;
+            default:  return <CategoryCardTypeA key={index} {...props} />;
+        }
+    };
+
+    // --- Helper to Render Product Cards ---
+    const renderProductCard = (item: product, index: number) => {
+        // FIX: Removed 'key' from this object to avoid the Type Error
+        const props = {
+            data: item, // Passing the full product object as 'data'
+            mainColor: mainColor,
+            link: item._id
+        };
+
+        // FIX: Ensure key is always a string or number (fallback to index if _id is missing)
+        const uniqueKey =   index;
+
+        // FIX: Applied 'key' directly to the JSX element
+        switch (productStyle) {
+            case "B": return <ProductCardTypeB key={uniqueKey} {...props} />;
+            case "C": return <ProductCardTypeC key={uniqueKey} {...props} />;
+            default:  return <ProductCardTypeA key={uniqueKey} {...props} />;
+        }
+    };
+
     return (
-        <div>
+        <div
+         >
+            {/* --- CATEGORIES SECTION --- */}
             {Categories.length > 0 && (
                 <section className="bg-white" id="categories">
                     <div className="container mx-auto px-4 md:px-8">
@@ -51,83 +103,43 @@ const ProductAndCategories = ({
                                 تصفح حسب الأقسام
                             </h2>
                             <div
-                                style={{
-                                    background: mainColor || "#4F46E5",
-                                }}
+                                style={{ background: mainColor || "#4F46E5" }}
                                 className="w-16 h-1 mx-auto rounded-full"
                             ></div>
                         </div>
 
-                        {/* 👇 SCROLLABLE CONTAINER */}
-                        {/* Changed grid to flex + overflow-x-auto */}
+                        {/* Scrollable Container */}
                         <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-hide">
-                            {/* 'All' Category Button */}
-                            <div
-                                onClick={() => setCat("all")}
-                                // 👇 Added min-w-[160px] to fix width and flex-shrink-0 so they don't squish
-                                className="group flex-shrink-0 min-w-[160px] md:min-w-[180px] snap-center flex flex-col items-center p-6 bg-white rounded-2xl border border-gray-100 hover:border-indigo-200 hover:shadow-xl transition-all duration-300 cursor-pointer text-center"
-                            >
-                                {/* Image Container */}
-                                <div className="relative w-24 h-24 mb-4 rounded-full bg-gray-50 group-hover:bg-indigo-50 flex items-center justify-center overflow-hidden transition-colors duration-300">
-                                    <Image
-                                        alt={"all_cats"}
-                                        src={logo}
-                                        fill
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        className="object-contain p-4 group-hover:scale-110 transition-transform duration-300"
-                                    />
-                                </div>
+                            
+                            {/* 1. The 'All' Category (Rendered dynamically to match style) */}
+                            {renderCategoryCard({
+                                name: "all",
+                                displayName: "الكل",
+                                image: logo // Use store logo for "All"
+                            }, 999)}
 
-                                {/* Text Content */}
-                                <h3 className="font-bold text-gray-800 text-lg mb-1 group-hover:text-indigo-600 transition-colors whitespace-nowrap">
-                                    كل
-                                </h3>
-                                <p className="text-sm text-gray-400 font-medium">منتجات</p>
-                            </div>
-
-                            {/* Dynamic Categories */}
-                            {Categories.map((catItem, i) => (
-                                <div
-                                    key={i}
-                                    onClick={() => setCat(catItem.name)}
-                                    // 👇 Added min-w-[160px] to fix width and flex-shrink-0 so they don't squish
-                                    className="group flex-shrink-0 min-w-[160px] md:min-w-[180px] snap-center flex flex-col items-center p-6 bg-white rounded-2xl border border-gray-100 hover:border-indigo-200 hover:shadow-xl transition-all duration-300 cursor-pointer text-center"
-                                >
-                                    {/* Image Container */}
-                                    <div className="relative w-24 h-24 mb-4 rounded-full bg-gray-50 group-hover:bg-indigo-50 flex items-center justify-center overflow-hidden transition-colors duration-300">
-                                        <Image
-                                            alt={catItem.name}
-                                            src={catItem.image}
-                                            fill
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            className="object-contain p-4 group-hover:scale-110 transition-transform duration-300"
-                                        />
-                                    </div>
-
-                                    {/* Text Content */}
-                                    <h3 className="font-bold text-gray-800 text-lg mb-1 group-hover:text-indigo-600 transition-colors whitespace-nowrap">
-                                        {catItem.name}
-                                    </h3>
-
-                                </div>
-                            ))}
+                            {/* 2. The Dynamic Categories */}
+                            {Categories.map((catItem, i) => 
+                                renderCategoryCard(catItem, i)
+                            )}
                         </div>
                     </div>
                 </section>
             )}
 
+            {/* --- PRODUCTS SECTION --- */}
             <div className="container mx-auto px-4 md:px-8">
                 <div className="text-center mb-10">
                     <h2 className="text-3xl font-bold text-gray-900 mb-4">منتجاتنا</h2>
                     <div
                         className="w-16 h-1 mx-auto rounded-full"
-                        style={{ backgroundColor: mainColor || "#4F46E5" }} // Use dynamic color
+                        style={{ backgroundColor: mainColor || "#4F46E5" }}
                     ></div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     {filteredProducts.length === 0 ? (
-                        <section className="px-5 py-20" id="products">
+                        <section className="px-5 py-20 col-span-full" id="products">
                             <div className="container mx-auto px-4 text-center">
                                 <div className="flex flex-col items-center justify-center space-y-4">
                                     <div className="bg-gray-50 p-6 rounded-full border border-gray-100">
@@ -144,65 +156,9 @@ const ProductAndCategories = ({
                             </div>
                         </section>
                     ) : (
-                        filteredProducts.map((product) => (
-                            <article
-                                key={product._id}
-                                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 group flex flex-col"
-                            >
-                                <Link href={`/products/${product._id}`}>
-                                    {/* Product Image */}
-                                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                                        <Image
-                                            alt={product.name}
-                                            width={300}
-                                            height={300}
-                                            src={product.images[0]}
-                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                                            loading="lazy"
-                                        />
-                                        {/* Quick Actions overlay */}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                                            <button
-                                                className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-800 hover:text-indigo-600 hover:scale-110 transition-all"
-                                                aria-label="عرض التفاصيل"
-                                            >
-                                                <Search size={20} />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Product Info */}
-                                    <div className="p-5 flex-1 flex flex-col">
-                                        <div className="text-xs text-indigo-600 font-semibold mb-2">
-                                            {product.type}
-                                        </div>
-                                        <h3 className="font-bold text-gray-900 text-lg mb-2 leading-snug line-clamp-2 hover:text-indigo-600 transition-colors cursor-pointer">
-                                            {product.name}
-                                        </h3>
-
-                                        <div className="mt-auto flex items-center justify-between">
-                                            <div>
-                                                <span className="block text-lg font-bold text-gray-900">
-                                                    {product.price} دج
-                                                </span>
-                                                {product.Oldprice && (
-                                                    <span className="text-sm text-gray-400 line-through">
-                                                        {product.Oldprice}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <button
-                                                style={{ background: mainColor }}
-                                                className="text-white p-2.5 rounded-lg hover:opacity-90 transition-colors shadow-lg shadow-indigo-200"
-                                                aria-label="أضف للسلة"
-                                            >
-                                                <ShoppingCart size={20} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Link>
-                            </article>
-                        ))
+                        // Render filtered products using the dynamic helper
+                        // FIX: Passing 'i' (index) to helper function
+                        filteredProducts.map((product, i) => renderProductCard(product, i))
                     )}
                 </div>
             </div>

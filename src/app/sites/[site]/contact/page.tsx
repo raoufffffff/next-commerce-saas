@@ -7,7 +7,7 @@ import {
     Facebook,
     Instagram,
 } from 'lucide-react';
-import { PageParams, UserData } from '@/types';
+import { PageParams, Store } from '@/types';
 
 export const revalidate = false;
 export const dynamic = "force-static";
@@ -19,22 +19,21 @@ export default async function ContactPage({ params }: { params: Promise<PagePara
 
     // 2. Fetch Data
     const data = await getStore(site);
-    const store = data?.store as UserData | undefined;
+    const store = data?.store as Store | undefined;
 
     if (!store) return notFound();
 
     // 3. Extract Data
     // We use optional chaining and empty object fallback to prevent crashes
     const {
-        email,
-        facebook,
-        instagram,
-        tiktok,
-        whatsapp,
-        phone,
-    } = store.website || {};
+       facebook,
+       instagram, 
+       phone,
+       tiktok,
+       whatsapp
+    } = store.contacts  || {};
 
-    const main_color = store.website?.main_color || '#4F46E5';
+    const main_color = store.mainColor  || '#4F46E5';
 
     // 4. Helper function to check if a value exists
     const hasVal = (val?: string | null): boolean => {
@@ -102,26 +101,7 @@ export default async function ContactPage({ params }: { params: Promise<PagePara
                         </div>
                     )}
 
-                    {/* Email Card */}
-                    {hasVal(email) && (
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow group">
-                            <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-50 group-hover:scale-110 transition-transform">
-                                <Mail size={32} style={{ color: main_color }} />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">البريد الإلكتروني</h3>
-                            <p className="text-gray-500 mb-6">{email}</p>
-                            <a
-                                href={`mailto:${email}`}
-                                className="inline-block px-6 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90"
-                                style={{ backgroundColor: main_color }}
-                            >
-                                إرسال رسالة
-                            </a>
-                        </div>
-                    )}
-
-                    {/* Address Card (Optional) */}
-
+                    
                 </div>
 
                 {/* --- Social Media Section --- */}

@@ -19,7 +19,7 @@ const OfferSelector = ({
 
     return (
         <div className="space-y-3 mt-6">
-            <h3 className="font-bold text-gray-900">Special Offers</h3>
+            <h3 className="font-bold text-gray-900">العروض الخاصة</h3>
             <div className="grid gap-3">
                 {offers.map((offer) => {
                     if (Number(offer.Quantity) < 1) return null;
@@ -54,7 +54,7 @@ const OfferSelector = ({
                                         {offer.name || 'Special Offer'}
                                     </h3>
                                     <p className="text-sm text-gray-600 mt-1">
-                                        Buy <span className="font-bold">{offer.Quantity}</span> for{' '}
+                                        اشتري <span className="font-bold">{offer.Quantity}</span> بسعر{' '}
                                         <span
                                             className="font-bold text-lg"
                                             style={{ color: mainColor }}
@@ -64,7 +64,7 @@ const OfferSelector = ({
                                     </p>
                                     {offer.freedelevry && (
                                         <p className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1 justify-end">
-                                            <CheckCircle2 size={12} /> Free Delivery
+                                            <CheckCircle2 size={12} /> توصيل مجاني
                                         </p>
                                     )}
                                 </div>

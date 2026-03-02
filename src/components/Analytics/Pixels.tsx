@@ -1,64 +1,54 @@
 'use client';
 
+import { pixel } from '@/types';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
-import * as fbq from '@/lib/fpixel';
-import * as ttq from '@/lib/ttpixel';
 
-// Define the shape of the pixel objects
-interface PixelSettings {
-    id: string;
-}
 
-interface PixelsProps {
-    fbId?: PixelSettings | null;
-}
 
-export default function Pixels({ fbId }: PixelsProps) {
+export default function FacebookPixel({ fbId }: {fbId : pixel | undefined}) {
     const pathname = usePathname();
     const [loaded, setLoaded] = useState(false);
 
-    // Track page changes
     useEffect(() => {
-        // First check if the script is loaded to avoid errors
+        // 1. Wait for the script to load
         if (!loaded) return;
 
-        // Facebook
-        if (fbId?.id) {
-            fbq.pageview(fbId?.id);
+        // 2. Verify we have an ID
+        if (!fbId?.id) return;
+
+        // 3. Access Facebook Pixel globally
+        const fbq = (window as any).fbq;
+
+        // 4. Fire the event
+        if (typeof fbq === 'function') {
+            fbq('track', 'PageView');
         }
-
-        // TikTok
-
     }, [pathname, fbId, loaded]);
 
+    // Don't render anything if no ID is provided
+    if (!fbId?.id) return null;
+
     return (
-        <>
-            {/* --- 1. Facebook Pixel --- */}
-            {fbId?.id && (
-                <Script
-                    id="fb-pixel"
-                    strategy="lazyOnload" // 👈 Performance improvement: lazy load
-                    dangerouslySetInnerHTML={{
-                        __html: `
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              
-              fbq('init', '${fbId.id}');
-              // ❌ Removed track PageView line from here
-              // ✅ The useEffect will handle it to ensure no duplication
-            `,
-                    }}
-                    onLoad={() => setLoaded(true)} // Tell State that the script is ready
-                />
-            )}
-        </>
+        <Script
+            id="fb-pixel"
+            strategy="afterInteractive" // Loads immediately after the page is interactive
+            dangerouslySetInnerHTML={{
+                __html: `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            
+            fbq('init', '${fbId.id}');
+          `,
+            }}
+            onLoad={() => setLoaded(true)}
+        />
     );
 }

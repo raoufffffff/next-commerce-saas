@@ -1,20 +1,21 @@
-import { Product, UserData } from "@/types";
+import { product, StatePrice, Store } from "@/types";
 
 // lib/api.ts
-const api = process.env.NEXT_PUBLIC_API as string;
-
+const api =  "https://api.next-commerce.shop";
+ 
+// process.env.NEXT_PUBLIC_API as string ||
 
 
 
 
 interface StoreResponse {
-    store: UserData | null;
-    livPrice: any; // Replace 'any' with specific delivery price type if known
+    store: Store | null;
+    StoreDlevryPrices: StatePrice[] | null; // Replace 'any' with specific delivery price type if known
 }
 
 // This interface ensures getProducts matches what ProductList expects
 export interface ProductAPIResponse {
-    result: Product[];
+    result: product[];
 }
 
 // --- API Functions ---
@@ -22,7 +23,7 @@ export interface ProductAPIResponse {
 export async function getStore(subdomain: string): Promise<StoreResponse | null> {
     try {
         // 👇 The secret is here: activating the tag with the store name (for cache invalidation)
-        const res = await fetch(`${api}/user/store/${subdomain}`, {
+        const res = await fetch(`${api}/api/public/store/${subdomain}`, {
             cache: "force-cache",
             next: {
                 revalidate: false,
@@ -37,9 +38,9 @@ export async function getStore(subdomain: string): Promise<StoreResponse | null>
 
         // Note: In the future, it is better to make the API fetch only one store instead of searching the array
         const store = data.result;
-        const livPrice = data.livPrice;
+        const StoreDlevryPrices = data.StoreDlevryPrices;
 
-        return { store, livPrice };
+        return { store, StoreDlevryPrices };
     } catch (error) {
         console.error("getStore Error:", error);
         return null;
@@ -49,7 +50,7 @@ export async function getStore(subdomain: string): Promise<StoreResponse | null>
 export async function getProducts(subdomain: string, id: string): Promise<ProductAPIResponse> {
     try {
         // Assume you have an API to fetch products based on the store name/ID
-        const res = await fetch(`${api}/item/my/${id}`, {
+        const res = await fetch(`${api}/api/public/products/store/${id}`, {
             cache: "force-cache",
             next: { tags: [`products-${subdomain}`] }, // ✅ The same tag is present here too!
         });
@@ -68,9 +69,9 @@ export async function getProducts(subdomain: string, id: string): Promise<Produc
     }
 }
 
-export async function getProduct(id: string, subdomain: string): Promise<Product | null> {
+export async function getProduct(id: string, subdomain: string): Promise<product | null> {
     try {
-        const res = await fetch(`${api}/item/${id}`, {
+        const res = await fetch(`${api}/api/public/products/one/${id}`, {
             cache: "force-cache",
             next: {
                 revalidate: false,
@@ -87,6 +88,8 @@ export async function getProduct(id: string, subdomain: string): Promise<Product
 
         // Note: In the future, optimize API to fetch single item directly if not already done
         const product = data.result;
+        console.log(product);
+        
         return product;
     } catch (error) {
         console.error("API Error (getProduct):", error);

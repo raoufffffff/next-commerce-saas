@@ -49,43 +49,7 @@ export interface FAQ {
     id: string;
 }
 
-export interface Store {
-    id: string;
-    logo: string;
-    store_name: string;
-    main_color: string;
-    phone: string;
-    repoName: string;
-    email: string;
-    language: string;
 
-    // Social Media Links
-    facebook: string;
-    instagram: string;
-    tiktok: string;
-    whatsapp: string;
-    viber?: string;
-    snapchat?: string;
-
-    // Legacy/String Pixel fields (if used)
-    tiktokP?: string;
-    FacebookP?: string;
-
-    // Configuration Objects
-    header: HeaderSettings;
-    thanks: ThanksSettings;
-
-    // Pixel Objects
-    facebookPixel: PixelConfig;
-    TiktokPixel: PixelConfig;
-
-    // Content
-    faqs: FAQ[];
-    EnableBerue: boolean;
-
-    // Extra fields found in JSON
-    name?: string;
-}
 
 export interface Category {
     id?: string; // 👈 Made optional
@@ -94,27 +58,85 @@ export interface Category {
     image: string;
 }
 
-export interface UserData {
-    _id: string;
-    name: string;
-    email: string;
-    phone: string;
-    repoName: string;
-    password?: string; // Optional as you might not always fetch it
-    link: string;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
-
-    // Nested Objects
-    companyLiv?: CompanyLiv;
-    website: Store;
-
-    // Arrays
-    Categories: Category[]; // Replace 'any' with Category interface if you have one
-    Notifications: any[];
-    taem: any[]; // Note: API returns 'taem', likely typo for 'team'
+export interface Store {
+    user: string;
+logo: string;
+      language: string;
+        enableBureau: boolean;
+ storeName: string;
+   _id: string;
+   faqs: faqs[];
+   categories: Category[];
+   domain: string;
+   contacts:contacts;
+   header : header;
+   mainColor: string;
+   thanks:thanks;
+   deliveryCompany:deliveryCompany;
+    facebookPixel?:pixel;
+    tiktokPixel?:pixel;
+      ProductCardType: string,
+    CategoryCardType: string,
 }
+
+export interface deliveryCompany {
+   name: string;
+        key: string;
+        token: string;
+        img?: string
+}
+
+
+export interface StatePrice {
+        id: number,
+        code: string,
+        name: string,
+        ar_name: string,
+        stop_back: number,
+        prix_initial: number
+    }
+
+ export interface pixel {
+  name: string;
+  id: string
+ }   
+
+export interface faqs {
+  question: string;
+  answer: string;
+  id: string;
+}
+
+export interface  contacts  { 
+        phone: string;
+        instagram: string;
+        tiktok: string;
+        facebook: string;
+        whatsapp: string
+    }  
+
+
+
+export interface  header  {
+        name:  boolean ;
+        logo: boolean  ;
+        headerColor: string; // تم التعديل لـ 6 خانات للأمان
+        textColor: string;
+        barColor: string;
+    }    
+
+   
+
+export interface thanks  {
+        img:  boolean;
+        title:  boolean;
+        about:  boolean;
+        homeButton:  boolean; // camelCase
+        phone:  boolean;
+        media:  boolean;
+        titleText:  string;
+        aboutText:  string ;
+    } 
 
 // ==========================================
 // 3. Product Interfaces
@@ -133,46 +155,35 @@ export interface Variant {
     options: VariantOption[];
 }
 
-export interface Offer {
-    id: number | string;
-    name: string;
-    // JSON shows these as strings ("2", "3350"), allowing number just in case
-    Quantity: string | number;
-    price: string | number;
-    freedelevry: boolean; // Matches API spelling
-    topOffer: boolean;
+ 
+
+export interface product{
+  _id ?: string;
+   store: string;
+      name: string;
+      subTitel: string;
+      price: number  ;
+      Oldprice: number | string;
+      ShortDescription: string;
+      Description: string;
+      tags: string[];
+      note: string;
+      show:boolean;
+      type: string;  
+      images: string[] | [];
+      LadingPages: string[] | [];
+       colorOpions?: string[];
+        sizeOpions?: string[] ;
+      Offers?: Offer[],
 }
 
-export interface Product {
-    _id: string;
-    userId: string;
-    name: string;
-    price: number;
-    Oldprice?: number; // Matches API casing
-
-    // Descriptions
-    note?: string;
-    ShortDescription?: string;
-    Description?: string;
-
-    // Organization
-    tags: string[];
-    type?: string;
-    show: boolean;
-
-    // Images
-    images: string[];
-    LadingPages: string[]; // Matches API spelling (LandingPages)
-
-    // Complex Data
-    Variants: Variant[];
-    Offers: Offer[];
-
-    // Stats
-    visit: number;
-    orders: number;
-    date: string;
-    __v: number;
+export interface Offer {
+  id: number;
+  name: string;
+  Quantity: string;
+  price: string;
+  freedelevry: boolean;
+  topOffer: boolean;
 }
 
 
@@ -183,13 +194,16 @@ export interface StateData {
     prix_initial: number;
     stop_back: number;
 }
-
+ 
 export interface CityData {
-    id?: string;
-    wilaya_code: string | number;
-    commune_name: string;
-    daira_name?: string;
-    name?: string;
+  id: 22,
+        commune_name_ascii: string,
+        commune_name: string,
+        daira_name_ascii: string,
+        daira_name: string,
+        wilaya_code: string,
+        wilaya_name_ascii: string,
+        wilaya_name: string
 }
 
 export interface CheckoutFormData {
@@ -209,9 +223,10 @@ export interface CheckoutFormData {
 }
 
 export interface CheckoutFormProps {
-    EnableBerue: boolean;
-    product: Product;
-    livPriceapi?: { LivPrice: StateData[] } | null;
+    beru: boolean;
+    user?: string
+    product: product;
+    StoreDlevryPrices?: StatePrice[] | null;
     mainColor?: string;
     tiktokp?: any; // Pass pixel config or boolean
     facebookp?: any;

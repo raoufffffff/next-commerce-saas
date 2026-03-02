@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
+import { Store } from '@/types';
 
-const Header = ({ store }: { store: any }) => {
+const Header = ({ store }: { store: Store }) => {
     // 1. Destructure Data
-    const { store_name, logo, header } = store || {};
+    const {  storeName, logo, header } = store || {};
 
     // Default colors if not provided
-    const headerColor = header?.headercolor || '#ffffff';
-    const textColor = header?.namecolor || '#000000';
-    const iconColor = header?.barcolor || '#000000';
+    const headerColor = header?.headerColor || '#ffffff';
+    const textColor = header?.textColor || '#000000';
+    const iconColor = header?.barColor || '#000000';
 
     // 2. State
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,7 +51,7 @@ const Header = ({ store }: { store: any }) => {
                             <div className="relative w-14 h-14">
                                 <Image
                                     src={logo}
-                                    alt={store_name || 'Logo'}
+                                    alt={storeName || 'Logo'}
                                     fill
                                     className="object-contain"
                                     sizes="100px"
@@ -63,7 +64,7 @@ const Header = ({ store }: { store: any }) => {
                                 className="text-xl font-bold leading-tight"
                                 style={{ color: currentText }}
                             >
-                                {store_name}
+                                {storeName}
                             </h1>
                         )}
                     </Link>

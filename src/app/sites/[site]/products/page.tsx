@@ -1,35 +1,53 @@
-import React from "react";
-import { notFound } from "next/navigation"; // 👈 Added missing import
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import ProductList from "@/components/ProductList";
 import { getStore } from "@/lib/api";
-import { PageParams, UserData } from "@/types";
+import { PageParams } from "@/types";
 
-export const revalidate = false;
 export const dynamic = "force-static";
+export const revalidate = false;
 
+export async function generateStaticParams() {
+    return [];
+}
 
-export default async function Page({
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<PageParams>;
+}): Promise<Metadata> {
+    const { site } = await params;
+    const data = await getStore(site);
+    const store = data?.store;
+
+    return {
+        title: store ? store.storeName : "Shop",
+        description: "Browse our categories",
+    };
+}
+
+export default async function ShopPage({
     params,
 }: {
     params: Promise<PageParams>;
 }) {
     const { site } = await params;
-
-    // Fetch store and cast type safely
     const data = await getStore(site);
-    const store = data?.store as UserData | undefined;
+    const store = data?.store;
 
-    // Handle 404 if store doesn't exist
     if (!store) return notFound();
+
+    const activeCategories = store.categories.filter((e) => e.show);
 
     return (
         <div className="min-h-screen">
             <ProductList
-                mainColor={store.website.main_color}
+                store={store}
+                logo={store.logo}
+                Categories={activeCategories}
+                mainColor={store.mainColor}
                 subdomain={site}
                 id={store._id}
-                // Note: 'Categories' prop will default to [] inside ProductList if not passed here
-                Categories={[]}
             />
         </div>
     );

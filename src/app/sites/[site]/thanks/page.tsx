@@ -1,27 +1,22 @@
 import { getStore } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
-import { PageParams, UserData } from "@/types";
+import { PageParams, Store } from "@/types";
+import { CheckCircle, Copy, ArrowRight, Phone } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 
 export const revalidate = false;
 export const dynamic = "force-static";
-
-
 
 export default async function ThankYouPage({
     params,
 }: {
     params: Promise<PageParams>;
 }) {
-    // 1. Await parameters (Next.js 15 requirement)
     const { site } = await params;
-
-    // 2. Fetch store data (Cached - very fast)
-    // We cast the result to ensure TypeScript knows the shape
     const data = await getStore(site);
-    const store = data?.store as UserData | null;
+    const store = data?.store as Store | null;
 
-    // Handle case where store might not exist (optional safety)
     if (!store) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -30,132 +25,107 @@ export default async function ThankYouPage({
         );
     }
 
-    // Extract data with default values to avoid errors
-    const logo = store.website.logo;
-    const storeName = store.website?.store_name || "The Store";
-
-    // Primary store color (fallback to green if not found)
-    const primaryColor =
-        store.website?.main_color;
-
-    // Transparent version for backgrounds
-    const primaryColorLight = `${primaryColor}15`;
-
-    // Simulate an order number (In a real app, pass this via query params or context)
-    const simulatedOrderNumber = (Math.random() * 10000).toFixed(0);
-
+    // Map the store config to the layout style you wanted
+    const thanksConfig = store.thanks;
+    const mainColor = store.mainColor || "#0D9488";
+    const storeName = store.storeName || "متجرنا";
     return (
         <div
             dir="rtl"
-            className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4"
+            className="min-h-screen   flex flex-col items-center justify-center p-4 font-sans"
         >
-            {/* Thank You Card */}
-            <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden animate-fade-in-up">
-
-                {/* 1. Header & Logo Area */}
-                <div className="bg-gray-50 p-8 flex flex-col items-center border-b border-gray-100">
-                    {logo ? (
-                        <div className="relative w-24 h-24 mb-4">
+            <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100">
+                
+                {/* Logo Section */}
+                <div className="pt-10 pb-4 flex flex-col items-center">
+                    {store.logo ? (
+                        <div className="relative w-20 h-20">
                             <Image
-                                src={logo}
+                                src={store.logo}
                                 alt={storeName}
                                 fill
                                 className="object-contain"
                             />
                         </div>
                     ) : (
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                            {storeName}
-                        </h2>
+                        <span className="font-bold text-xl">{storeName}</span>
                     )}
                 </div>
 
-                {/* 2. Animated Success Icon */}
-                <div className="flex justify-center -mt-10 relative z-10">
-                    <div className="bg-white p-2 rounded-full shadow-sm">
-                        <div
-                            className="w-20 h-20 rounded-full flex items-center justify-center animate-bounce-slow"
-                            style={{ backgroundColor: primaryColorLight }}
+                {/* Main Content Area */}
+                <div className="p-6 flex flex-col items-center text-center space-y-6 min-h-[400px]">
+                    
+                    {/* Animated Success Icon */}
+                    {thanksConfig.img && (
+                        <div 
+                            className="w-24 h-24 rounded-full flex items-center justify-center animate-in zoom-in duration-500 scale-110"
+                            style={{ backgroundColor: `${mainColor}10` }}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-10 w-10"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke={primaryColor}
-                                strokeWidth={3}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M5 13l4 4L19 7"
-                                />
-                            </svg>
+                            <CheckCircle size={48} style={{ color: mainColor }} strokeWidth={2.5} />
                         </div>
+                    )}
+
+                    {/* Titles & Description */}
+                    <div className="space-y-3">
+                        {thanksConfig.title && (
+                            <h2 className="text-2xl font-black text-gray-900 leading-tight">
+                                {thanksConfig.titleText || "شكراً لطلبك!"}
+                            </h2>
+                        )}
+                        {thanksConfig.about && (
+                            <p className="text-gray-500 leading-relaxed px-6">
+                                {thanksConfig.aboutText || "لقد استلمنا طلبك بنجاح، سنتصل بك قريباً لتأكيد المعلومات."}
+                            </p>
+                        )}
                     </div>
-                </div>
 
-                {/* 3. Thank You Text & Instructions */}
-                <div className="text-center px-8 py-6">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                        شكراً لطلبك!
-                    </h1>
-                    <p className="text-gray-500 text-sm mb-6">
-                        تم استلام طلبك بنجاح رقم{" "}
-                        <span className="font-mono font-bold text-gray-700">
-                            #{simulatedOrderNumber}
-                        </span>
-                    </p>
+                    {/* Divider */}
+                    {(thanksConfig.phone || thanksConfig.homeButton) && (
+                        <div className="w-full border-t border-dashed border-gray-200" />
+                    )}
 
-                    {/* 4. What Happens Next (Crucial for Algeria/COD markets) */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-right mb-8">
-                        <h3 className="font-bold text-blue-800 text-sm mb-3 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                            ماذا سيحدث الآن؟
-                        </h3>
-                        <ul className="space-y-3">
-                            <li className="flex items-start gap-3 text-sm text-gray-600">
-                                <div className="bg-white p-1 rounded shadow-sm min-w-[24px] flex justify-center text-xs font-bold text-blue-600">
-                                    1
+                    {/* Action Area (Phone & Home Button) */}
+                    <div className="w-full space-y-4 pt-2">
+                        {thanksConfig.phone && (
+                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 transition-all hover:bg-gray-100/50">
+                                <p className="text-xs text-gray-400 mb-2">هل لديك استفسار؟ اتصل بنا:</p>
+                                <div className="flex items-center justify-center gap-3 font-mono font-bold text-gray-800 bg-white py-3 rounded-xl border border-gray-200 shadow-sm cursor-pointer active:scale-95 transition-transform">
+                                    <Phone size={16} style={{ color: mainColor }} /> 
+                                    {store.contacts?.phone || "0555 55 55 55"}
+                                    <Copy size={14} className="text-gray-300 mr-1" />
                                 </div>
-                                <span>
-                                    سيقوم فريقنا بالاتصال بك هاتفياً لتأكيد الطلب والعنوان في أقرب
-                                    وقت.
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-3 text-sm text-gray-600">
-                                <div className="bg-white p-1 rounded shadow-sm min-w-[24px] flex justify-center text-xs font-bold text-blue-600">
-                                    2
-                                </div>
-                                <span>
-                                    بعد التأكيد، سيتم شحن المنتج إليك والدفع يكون عند الاستلام.
-                                </span>
-                            </li>
-                        </ul>
+                            </div>
+                        )}
+
+                        {thanksConfig.homeButton && (
+                            <Link
+                                href="/"
+                                className="w-full py-4 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-all hover:opacity-90 active:scale-95 shadow-teal-900/10"
+                                style={{ backgroundColor: mainColor }}
+                            >
+                                العودة للرئيسية <ArrowRight size={18} className="rotate-180" />
+                            </Link>
+                        )}
                     </div>
 
-                    {/* 5. Return Button */}
-                    <Link
-                        href={`/`}
-                        className="block w-full text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 transition transform hover:-translate-y-1"
-                        style={{ backgroundColor: primaryColor }}
-                    >
-                        العودة للتسوق
-                    </Link>
+                    {/* Footer Social Media */}
+                    {thanksConfig.media && (
+                        <div className="pt-6 mt-auto">
+                            <p className="text-[10px] text-gray-400 mb-4 uppercase tracking-[0.2em] font-bold">تابعنا على</p>
+                            <div className="flex justify-center gap-5">
+                                <a href="#" className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center hover:scale-110 transition"><FaFacebookF size={16} /></a>
+                                <a href="#" className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center hover:scale-110 transition"><FaInstagram size={16} /></a>
+                                <a href="#" className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center hover:scale-110 transition"><FaTiktok size={16} /></a>
+                            </div>
+                        </div>
+                    )}
 
-                    {/* Support Link */}
-                    <div className="mt-6 text-xs text-gray-400">
-                        تواجه مشكلة؟{" "}
-                        <Link href="/contact" className="underline hover:text-gray-600">
-                            تواصل معنا
-                        </Link>
-                    </div>
                 </div>
             </div>
 
-            {/* Small Footer */}
-            <p className="mt-8 text-gray-400 text-sm">
-                جميع الحقوق محفوظة © {storeName}
+            {/* Bottom Credits */}
+            <p className="mt-8 text-gray-400 text-xs tracking-wide">
+                جميع الحقوق محفوظة © {storeName} {new Date().getFullYear()}
             </p>
         </div>
     );

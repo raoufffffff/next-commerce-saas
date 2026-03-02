@@ -9,6 +9,7 @@ import { CheckCircle } from 'lucide-react';
 // API Helpers
 import { getProduct, getStore } from '@/lib/api';
 import { PageParams } from '@/types';
+import Visit from '@/components/Analytics/Visit';
 
 export const revalidate = false;
 
@@ -58,26 +59,26 @@ export default async function ProductPage({ params }: { params: Promise<PagePara
         getProduct(id, site)
     ]);
 
+     
+
     if (!product || !storeData) {
         notFound();
     }
 
-    // استخراج البيانات حسب هيكلة الـ API الخاص بك
-    // افترضنا هنا أن API المتجر يعيد { result: storeObject, livPrice: ... }
-    const { livPrice, store } = storeData;
-    // ملاحظة: إذا كان الـ API يعيد { store: ..., livPrice: ... } عدلها هنا
 
-    // 🤖 JSON-LD Schema: لغة التفاهم مع جوجل (لإظهار السعر والتوفر في البحث)
+    const {  store, StoreDlevryPrices} = storeData
+
+    
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Product',
-        name: product.name,
-        description: product.ShortDescription,
-        image: product.images,
+        name: product?.name,
+        description: product?.ShortDescription,
+        image: product?.images,
         offers: {
             '@type': 'Offer',
             priceCurrency: 'DZD',
-            price: product.price,
+            price: product?.price,
             availability: 'https://schema.org/InStock',
             url: `https://${site}/products/${id}`, // رابط المنتج
         },
@@ -100,24 +101,24 @@ export default async function ProductPage({ params }: { params: Promise<PagePara
                     {/* Gallery Component (Client Island) */}
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
                         <ProductGallery
-                            LadingPages={product.LadingPages}
-                            images={product.images}
-                            title={product.name}
-                            mainColor={store?.website?.main_color}
+                            LadingPages={product?.LadingPages}
+                            images={product?.images}
+                            title={product?.name}
+                            mainColor={storeData?.store?.mainColor}
                         />
                     </div>
 
                     {/* Product Info Block */}
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">
-                            {product.name}
+                            {product?.name}
                         </h1>
 
                         <div className="flex items-center flex-wrap gap-4 mb-6">
                             <span className="text-4xl font-extrabold text-indigo-600">
-                                {Number(product.price).toLocaleString()} د.ج
+                                {Number(product?.price).toLocaleString()} د.ج
                             </span>
-                            {product.Oldprice && (
+                            {Number(product?.Oldprice) > 0  && (
                                 <span className="text-xl text-gray-400 line-through decoration-red-400 decoration-2">
                                     {Number(product.Oldprice).toLocaleString()} د.ج
                                 </span>
@@ -129,36 +130,37 @@ export default async function ProductPage({ params }: { params: Promise<PagePara
                         </div>
 
                         {/* Tags */}
-                        {product.tags && product.tags.length > 0 && (
+                        {product?.tags && product.tags.length > 0 && (
                             <div className="mb-6 border-t border-gray-100 pt-4">
                                 <Tags tags={product.tags} />
                             </div>
                         )}
 
                         {/* Description */}
-                        <div className="prose prose-indigo max-w-none text-right text-gray-600 leading-relaxed">
+                      {product?.ShortDescription &&  <div className="prose prose-indigo max-w-none text-right text-gray-600 leading-relaxed">
                             <h3 className="text-lg font-bold text-gray-900 mb-2">الوصف:</h3>
-                            <p>{product.ShortDescription}</p>
-                        </div>
+                            <p>{product?.ShortDescription}</p>
+                        </div>}
                     </div>
 
                     {/* Extra Note Block (if exists) */}
-                    {product.note && (
+                    {product?.note && (
                         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-sm">
                             <strong>ملاحظة هامة: </strong> {product.note}
                         </div>
                     )}
                 </div>
+            <Visit image={product.images[0]} page={product._id || ""} store={storeData.store?._id || ""} />
 
                 {/* 🛒 LEFT COLUMN (Desktop): Sticky Checkout Form (Cols 5) */}
                 <div className="md:col-span-5 h-fit md:sticky md:top-24">
                     <CheckoutForm
-                        EnableBerue={store?.website?.EnableBerue || false}
-                        tiktokp={store?.website?.TiktokPixel?.id || null}
-                        facebookp={store?.website?.facebookPixel?.id || null}
-
-                        mainColor={store?.website?.main_color || '#4F46E5'}
-                        livPriceapi={livPrice}
+                    beru={store?.enableBureau || false}
+                        tiktokp={store?.tiktokPixel?.id  || null}
+                        facebookp={store?.facebookPixel?.id  || null}
+user={storeData.store?.user}
+                        mainColor={store?.mainColor  || '#4F46E5'}
+                        StoreDlevryPrices={StoreDlevryPrices}
                         product={product}
                     />
 
